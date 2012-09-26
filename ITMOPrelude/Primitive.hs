@@ -198,35 +198,45 @@ infixl 7 .*.
 -------------------------------------------
 -- Рациональные числа
 
-data Rat = Rat Int Nat
+data Rat = Rat Int Nat deriving (Show,Read)
 
 ratNeg :: Rat -> Rat
 ratNeg (Rat x y) = Rat (intNeg x) y
 
 -- У рациональных ещё есть обратные элементы
 ratInv :: Rat -> Rat
-ratInv = undefined
+ratInv (Rat (Positive x) y) = Rat (Positive y) x
+ratInv (Rat (Negative x) y) = Rat (intNeg $ Positive y) (Succ x)
 
 -- Дальше как обычно
 ratCmp :: Rat -> Rat -> Tri
-ratCmp = undefined
+ratCmp (Rat a b) (Rat c d) = intCmp (a .*. (Positive d)) (c .*. (Positive b))
 
 ratEq :: Rat -> Rat -> Bool
-ratEq = undefined
+ratEq x y = case ratCmp x y of
+    EQ -> True
+    _  -> False
 
 ratLt :: Rat -> Rat -> Bool
-ratLt = undefined
+ratLt x y = case ratCmp x y of
+    LT -> True
+    _  -> False
+
+-- TODO normalization
+ratNorm :: Rat -> Rat
+ratNorm (Rat (Positive x) y) = Rat (Positive $ natDiv x g) (natDiv y g) where
+    g = gcd x y
 
 infixl 7 %+, %-
 (%+) :: Rat -> Rat -> Rat
-n %+ m = undefined
+(Rat a b) %+ (Rat c d) = Rat ((a .*. (Positive d)) .+. (c .*. (Positive b))) (b *. d)
 
 (%-) :: Rat -> Rat -> Rat
 n %- m = n %+ (ratNeg m)
 
 infixl 7 %*, %/
 (%*) :: Rat -> Rat -> Rat
-n %* m = undefined
+(Rat a b) %* (Rat c d) = Rat (a .*. c) (b *. d)
 
 (%/) :: Rat -> Rat -> Rat
 n %/ m = n %* (ratInv m)
