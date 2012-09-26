@@ -5,6 +5,7 @@ import Prelude (Show,Read,error)
 
 ---------------------------------------------
 -- Синтаксис лямбда-выражений
+-- I HATE NON-ASCII SYMBOLS IN THE CODE!
 
 -- Эквивалентные определения
 example1 x  = x
@@ -93,17 +94,20 @@ natCmp (Succ n) (Succ m) = natCmp n m
 
 -- n совпадает с m 
 natEq :: Nat -> Nat -> Bool
-natEq Zero     Zero     = True
-natEq Zero     (Succ _) = False
-natEq (Succ _) Zero     = False
-natEq (Succ n) (Succ m) = natEq n m
+natEq n m = case natCmp n m of
+    EQ -> True
+    _  -> False
 
 -- n меньше m
 natLt :: Nat -> Nat -> Bool
-natLt Zero     Zero     = False
-natLt Zero     (Succ m) = True
-natLt (Succ n) Zero     = False
-natLt (Succ n) (Succ m) = natLt n m
+natLt n m = case natCmp n m of
+    LT -> True
+    _  -> False
+
+natGt :: Nat -> Nat -> Bool
+natGt n m = case natCmp n m of
+    GT -> True
+    _  -> False
 
 infixl 6 +.
 -- Сложение для натуральных чисел
@@ -127,7 +131,7 @@ Zero     *. m = Zero
 -- Целое и остаток от деления n на m
 natDivMod :: Nat -> Nat -> Pair Nat Nat
 natDivMod _ Zero = error "!!: divizion by zero"
-natDivMod n m = if' (natLt n m) (Pair natZero n) (Pair (natOne +. (fst (natDivMod (n -. m) m))) (snd (natDivMod (n -. m) m)))
+natDivMod n m = if' (natLt n m) (Pair natZero n) (Pair (Succ (natDiv (n -. m) m)) (natMod (n -. m) m))
 
 natDiv n = fst . natDivMod n -- Целое
 natMod n = snd . natDivMod n -- Остаток
@@ -141,37 +145,55 @@ gcd n m = gcd m (natMod n m)
 -- Целые числа
 
 -- Требуется, чтобы представление каждого числа было единственным
-data Int = UNDEFINED deriving (Show,Read)
+data Int = Positive Nat | Negative Nat deriving (Show,Read)
 
-intZero   = undefined   -- 0
-intOne    = undefined     -- 1
-intNegOne = undefined -- -1
+intZero   = Positive Zero -- 0
+intOne    = Positive $ Succ Zero -- 1
+intNegOne = Negative Zero -- -1
 
 -- n -> - n
 intNeg :: Int -> Int
-intNeg = undefined
+intNet intZero = intZero
+intNeg (Positive (Succ n)) = Negative n
+intNeg (Negative n) = Positive $ Succ n
 
 -- Дальше также как для натуральных
 intCmp :: Int -> Int -> Tri
-intCmp = undefined
+intCmp (Positive _) (Negative _) = GT
+intCmp (Negative _) (Positive _) = LT
+intCmp (Positive n) (Positive m) = natCmp n m
+intCmp (Negative n) (Negative m) = natCmp m n
 
 intEq :: Int -> Int -> Bool
-intEq = undefined
+intEq n m = case intCmp n m of
+    EQ -> True
+    _  -> False
 
 intLt :: Int -> Int -> Bool
-intLt = undefined
+intLt n m = case intCmp n m of
+    LT -> True
+    _  -> False
 
 infixl 6 .+., .-.
 -- У меня это единственный страшный терм во всём файле
 (.+.) :: Int -> Int -> Int
-n .+. m = undefined
+(Positive n) .+. (Positive m) = Positive $ n +. m
+(Negative n) .+. (Negative m) = Negative $ Succ (n +. m)
+(Positive Zero) .+. (Negative m) = Negative m
+(Positive (Succ n)) .+. (Negative m) = case natLt m (Succ n) of
+    True -> Positive $ n -. m
+    False -> Negative $ m -. (Succ n)
+(Negative n) .+. (Positive m) = (Positive m) .+. (Negative n)
 
 (.-.) :: Int -> Int -> Int
 n .-. m = n .+. (intNeg m)
 
 infixl 7 .*.
 (.*.) :: Int -> Int -> Int
-n .*. m = undefined
+(Positive n) .*. (Positive m) = Positive $ n *. m
+(Negative n) .*. (Negative m) = Positive $ (Succ n) *. (Succ m)
+(Positive n) .*. (Negative m) = intNeg $ Positive $ n *. (Succ m)
+(Negative n) .*. (Positive m) = (Positive m) .*. (Negative n)
 
 -------------------------------------------
 -- Рациональные числа
