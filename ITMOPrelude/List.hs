@@ -94,7 +94,10 @@ dropWhile p (Cons a l) = case p a of
 -- Разбить список по предикату на (takeWhile p xs, dropWhile p xs),
 -- но эффективнее
 span :: (a -> Bool) -> List a -> Pair (List a) (List a)
-span p = undefined
+span p Nil = Pair Nil Nil
+span p (Cons a l) = case p a of
+    True  -> Pair (Cons a $ fst $ span p l) (snd $ span p l)
+    False -> Pair Nil $ Cons a l
 
 -- Разбить список по предикату на (takeWhile (not . p) xs, dropWhile (not . p) xs),
 -- но эффективнее
@@ -104,7 +107,8 @@ break = undefined
 -- n-ый элемент списка (считая с нуля)
 (!!) :: List a -> Nat -> a
 Nil !! n = error "ITMOPrelude.List.!!: empty list"
-l  !! n = undefined
+(Cons a _) !! Zero = a
+(Cons a l) !! (Succ n) = l !! n
 
 -- Список задом на перёд
 reverse :: List a -> List a
