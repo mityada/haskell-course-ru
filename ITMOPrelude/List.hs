@@ -64,7 +64,7 @@ drop (Succ n) (Cons a l) = drop n l
 
 -- Оставить в списке только элементы удовлетворяющие p
 filter :: (a -> Bool) -> List a -> List a
-filter p Nil = Nil
+filter _ Nil = Nil
 filter p (Cons a l) = case p a of
     True  -> Cons a $ filter p l
     False -> filter p l
@@ -72,12 +72,15 @@ filter p (Cons a l) = case p a of
 -- Обобщённая версия. Вместо "выбросить/оставить" p
 -- говорит "выбросить/оставить b".
 gfilter :: (a -> Maybe b) -> List a -> List b
-gfilter p = undefined
+gfilter _ Nil = Nil
+gfilter p (Cons a l) = case p a of
+    Just b  -> Cons b $ gfilter p l
+    Nothing -> gfilter p l
 
 -- Копировать из списка в результат до первого нарушения предиката
 -- takeWhile (< 3) [1,2,3,4,1,2,3,4] == [1,2]
 takeWhile :: (a -> Bool) -> List a -> List a
-takeWhile p Nil = Nil
+takeWhile _ Nil = Nil
 takeWhile p (Cons a l) = case p a of
     True  -> Cons a $ takeWhile p l
     False -> Nil
@@ -86,7 +89,7 @@ takeWhile p (Cons a l) = case p a of
 -- после чего скопировать все элементы, включая первый нарушивший
 -- dropWhile (< 3) [1,2,3,4,1,2,3,4] == [3,4,1,2,3,4]
 dropWhile :: (a -> Bool) -> List a -> List a
-dropWhile p Nil = Nil
+dropWhile _ Nil = Nil
 dropWhile p (Cons a l) = case p a of
     True  -> dropWhile p l
     False -> Cons a l
@@ -94,7 +97,7 @@ dropWhile p (Cons a l) = case p a of
 -- Разбить список по предикату на (takeWhile p xs, dropWhile p xs),
 -- но эффективнее
 span :: (a -> Bool) -> List a -> Pair (List a) (List a)
-span p Nil = Pair Nil Nil
+span _ Nil = Pair Nil Nil
 span p (Cons a l) = case p a of
     True  -> Pair (Cons a $ fst $ span p l) (snd $ span p l)
     False -> Pair Nil $ Cons a l
