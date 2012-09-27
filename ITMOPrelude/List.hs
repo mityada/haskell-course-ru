@@ -102,7 +102,7 @@ span p (Cons a l) = case p a of
 -- Разбить список по предикату на (takeWhile (not . p) xs, dropWhile (not . p) xs),
 -- но эффективнее
 break :: (a -> Bool) -> List a -> Pair (List a) (List a)
-break = undefined
+break p = span $ not . p
 
 -- n-ый элемент списка (считая с нуля)
 (!!) :: List a -> Nat -> a
@@ -112,7 +112,8 @@ Nil !! n = error "ITMOPrelude.List.!!: empty list"
 
 -- Список задом на перёд
 reverse :: List a -> List a
-reverse = undefined
+reverse Nil = Nil
+reverse (Cons a l) = reverse l ++ Cons a Nil
 
 -- (*) Все подсписки данного списка
 subsequences :: List a -> List (List a)
@@ -144,12 +145,14 @@ repeat a = Cons a $ repeat a
 --  / \
 -- z  l!!0
 foldl :: (a -> b -> a) -> a -> List b -> a
-foldl f z l = undefined
+foldl _ z Nil = z
+foldl f z (Cons a l) = foldl f (f z a) l
 
 -- Тот же foldl, но в списке оказываются все промежуточные результаты
 -- last (scanl f z xs) == foldl f z xs
 scanl :: (a -> b -> a) -> a -> List b -> List a
-scanl = undefined
+scanl _ z Nil = Cons z Nil
+scanl f z (Cons a l) = Cons z $ scanl f (f z a) l
 
 -- Правая свёртка
 -- порождает такое дерево вычислений:
@@ -164,12 +167,15 @@ scanl = undefined
 --            z
 --            
 foldr :: (a -> b -> b) -> b -> List a -> b
-foldr f z l = undefined
+foldr _ z Nil = z
+foldr f z (Cons a l) = f a $ foldr f z l
 
 -- Аналогично
 --  head (scanr f z xs) == foldr f z xs.
 scanr :: (a -> b -> b) -> b -> List a -> List b
-scanr = undefined
+scanr _ z Nil = Cons z Nil
+scanr f z (Cons a l) = Cons (f a $ head x) x where
+    x = scanr f z l
 
 -- Должно завершаться за конечное время
 finiteTimeTest = take (Succ $ Succ $ Succ $ Succ Zero) $ foldr (Cons) Nil $ repeat Zero
