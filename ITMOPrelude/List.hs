@@ -20,39 +20,54 @@ data List a = Nil |  Cons a (List a) deriving (Show,Read)
 
 -- Длина списка
 length :: List a -> Nat
-length = undefined
+length Nil = Zero
+length (Cons _ l) = Succ $ length l
 
 -- Склеить два списка за O(length a)
 (++) :: List a -> List a -> List a
-a ++ b = undefined
+Nil ++ l = l
+(Cons a x) ++ y = Cons a $ x ++ y
 
 -- Список без первого элемента
 tail :: List a -> List a
-tail = undefined
+tail Nil = error "ITMOPrelude.List.tail: empty list"
+tail (Cons _ x) = x
 
 -- Список без последнего элемента
 init :: List a -> List a
-init = undefined
+init Nil = error "ITMOPrelude.List.init: empty list"
+init (Cons a Nil) = Nil
+init (Cons a l) = Cons a $ init l
 
 -- Первый элемент
 head :: List a -> a
-head = undefined
+head Nil = error "ITMOPrelude.List.head: empty list"
+head (Cons a _) = a
 
 -- Последний элемент
 last :: List a -> a
-last = undefined
+last Nil = error "ITMOPrelude.List.last: empty list"
+last (Cons a Nil) = a
+last (Cons a l) = last l
 
 -- n первых элементов списка
 take :: Nat -> List a -> List a
-take = undefined
+take Zero _ = Nil
+take _ Nil = error "ITMOPrelude.List.take: empty list"
+take (Succ n) (Cons a l) = Cons a $ take n l
 
 -- Список без n первых элементов
 drop :: Nat -> List a -> List a
-drop = undefined
+drop Zero l = l
+drop (Succ n) Nil = error "ITMOPrelude.List.drop: empty list"
+drop (Succ n) (Cons a l) = drop n l
 
 -- Оставить в списке только элементы удовлетворяющие p
 filter :: (a -> Bool) -> List a -> List a
-filter p = undefined
+filter p Nil = Nil
+filter p (Cons a l) = case p a of
+    True  -> Cons a $ filter p l
+    False -> filter p l
 
 -- Обобщённая версия. Вместо "выбросить/оставить" p
 -- говорит "выбросить/оставить b".
@@ -62,13 +77,19 @@ gfilter p = undefined
 -- Копировать из списка в результат до первого нарушения предиката
 -- takeWhile (< 3) [1,2,3,4,1,2,3,4] == [1,2]
 takeWhile :: (a -> Bool) -> List a -> List a
-takeWhile = undefined
+takeWhile p Nil = Nil
+takeWhile p (Cons a l) = case p a of
+    True  -> Cons a $ takeWhile p l
+    False -> Nil
 
 -- Не копировать из списка в результат до первого нарушения предиката,
 -- после чего скопировать все элементы, включая первый нарушивший
 -- dropWhile (< 3) [1,2,3,4,1,2,3,4] == [3,4,1,2,3,4]
 dropWhile :: (a -> Bool) -> List a -> List a
-dropWhile = undefined
+dropWhile p Nil = Nil
+dropWhile p (Cons a l) = case p a of
+    True  -> dropWhile p l
+    False -> Cons a l
 
 -- Разбить список по предикату на (takeWhile p xs, dropWhile p xs),
 -- но эффективнее
@@ -82,7 +103,7 @@ break = undefined
 
 -- n-ый элемент списка (считая с нуля)
 (!!) :: List a -> Nat -> a
-Nil !! n = error "!!: empty list"
+Nil !! n = error "ITMOPrelude.List.!!: empty list"
 l  !! n = undefined
 
 -- Список задом на перёд
@@ -105,7 +126,7 @@ permutations' = undefined
 
 -- Повторяет элемент бесконечное число раз
 repeat :: a -> List a
-repeat = undefined
+repeat a = Cons a $ repeat a
 
 -- Левая свёртка
 -- порождает такое дерево вычислений:

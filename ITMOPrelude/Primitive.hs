@@ -120,7 +120,7 @@ infixl 6 -.
 (-.) :: Nat -> Nat -> Nat
 n -. Zero = n
 (Succ n) -. (Succ m) = n -. m
-Zero -. _ = error "!!: negative result"
+Zero -. _ = error "ITMOPrelude.Primitive.-.: negative result"
 
 infixl 7 *.
 -- Умножение для натуральных чисел
@@ -130,7 +130,7 @@ Zero     *. m = Zero
 
 -- Целое и остаток от деления n на m
 natDivMod :: Nat -> Nat -> Pair Nat Nat
-natDivMod _ Zero = error "!!: divizion by zero"
+natDivMod _ Zero = error "ITMOPrelude.Primitive.natDivMod: divizion by zero"
 natDivMod n m = if' (natLt n m) (Pair natZero n) (Pair (Succ (natDiv (n -. m) m)) (natMod (n -. m) m))
 
 natDiv n = fst . natDivMod n -- Целое
