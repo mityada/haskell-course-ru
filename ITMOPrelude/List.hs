@@ -182,20 +182,27 @@ finiteTimeTest = take (Succ $ Succ $ Succ $ Succ Zero) $ foldr (Cons) Nil $ repe
 
 -- Применяет f к каждому элементу списка
 map :: (a -> b) -> List a -> List b
-map f l = undefined
+map _ Nil = Nil
+map f (Cons a l) = Cons (f a) $ map f l
 
 -- Склеивает список списков в список
 concat :: List (List a) -> List a
-concat = undefined
+concat Nil = Nil
+concat (Cons a l) = a ++ (concat l)
 
 -- Эквивалент (concat . map), но эффективнее
 concatMap :: (a -> List b) -> List a -> List b
-concatMap = undefined
+concatMap _ Nil = Nil
+concatMap f (Cons a l) = f a ++ concatMap f l
 
 -- Сплющить два списка в список пар длинны min (length a, length b)
 zip :: List a -> List b -> List (Pair a b)
-zip a b = undefined
+zip _ Nil = Nil
+zip Nil _ = Nil
+zip (Cons a l1) (Cons b l2) = Cons (Pair a b) $ zip l1 l2
 
 -- Аналогично, но плющить при помощи функции, а не конструктором Pair
 zipWith :: (a -> b -> c) -> List a -> List b -> List c
-zipWith = undefined
+zipWith _ _ Nil = Nil
+zipWith _ Nil _ = Nil
+zipWith f (Cons a l1) (Cons b l2) = Cons (f a b) $ zipWith f l1 l2
