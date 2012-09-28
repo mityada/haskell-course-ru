@@ -28,6 +28,10 @@ length (Cons _ l) = Succ $ length l
 Nil ++ l = l
 (Cons a x) ++ y = Cons a $ x ++ y
 
+append :: List a -> a -> List a
+append Nil a = Cons a Nil
+append (Cons a l) b = Cons a $ append l b
+
 -- Список без первого элемента
 tail :: List a -> List a
 tail Nil = error "ITMOPrelude.List.tail: empty list"
@@ -121,7 +125,7 @@ reverse (Cons a l) = reverse l ++ Cons a Nil
 -- (*) Все подсписки данного списка
 subsequences :: List a -> List (List a)
 subsequences Nil = Cons Nil Nil
-subsequences (Cons x xs) = undefined
+subsequences (Cons a l) = (scanl append (Cons a Nil) l) ++ subsequences l
 
 -- (*) Все перестановки элементов данного списка
 permutations :: List a -> List (List a)
