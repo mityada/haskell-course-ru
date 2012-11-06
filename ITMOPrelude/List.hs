@@ -125,7 +125,8 @@ reverse (Cons a l) = reverse l ++ Cons a Nil
 -- (*) Все подсписки данного списка
 subsequences :: List a -> List (List a)
 subsequences Nil = Cons Nil Nil
-subsequences (Cons a l) = (scanl append (Cons a Nil) l) ++ subsequences l
+subsequences (Cons a l) = (map (Cons a) $ subs) ++ subs where
+    subs = subsequences l
 
 -- (*) Все перестановки элементов данного списка
 permutations :: List a -> List (List a)
